@@ -116,11 +116,7 @@ If you like this repo, please ⭐ star the project — your support motivates us
 
 Open a PR or reach out on Discord / WhatsApp group — contributions are welcome.
 
-If you want, I can also generate:
-✔ LICENSE
-✔ CONTRIBUTING.md
-✔ Architecture.pdf (for hackathon judges)
-✔ Demo script slide template
+
 
 
 
