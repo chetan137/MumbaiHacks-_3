@@ -1,12 +1,15 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ModernizationDashboard from './modernization/ModernizationDashboard';
+import { sampleModernizationData, featureHighlights } from '../data/modernizationData';
 
 const ModernizationApp = () => {
   const [modernizationResults, setModernizationResults] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStatus, setProcessingStatus] = useState(null);
   const [currentFile, setCurrentFile] = useState(null);
+  const [appMode, setAppMode] = useState('landing'); // 'landing' | 'dashboard'
 
   // Animation variants
   const fadeInUp = {
@@ -43,158 +46,23 @@ const ModernizationApp = () => {
 
   // Demo function to load sample data
   const loadSampleData = () => {
-    const sampleResults = {
-      schema: {
-        tables: [
-          {
-            name: "customers",
-            columns: [
-              { name: "id", type: "INT", isPrimary: true, isNotNull: true },
-              { name: "customer_id", type: "VARCHAR(20)", isUnique: true, isNotNull: true },
-              { name: "customer_name", type: "VARCHAR(100)", isNotNull: true },
-              { name: "customer_address", type: "TEXT" },
-              { name: "created_at", type: "TIMESTAMP", hasDefault: true },
-              { name: "updated_at", type: "TIMESTAMP", hasDefault: true }
-            ],
-            relationships: []
-          },
-          {
-            name: "customer_reports",
-            columns: [
-              { name: "id", type: "INT", isPrimary: true, isNotNull: true },
-              { name: "customer_id", type: "VARCHAR(20)", isNotNull: true },
-              { name: "report_date", type: "DATE", isNotNull: true },
-              { name: "report_data", type: "JSON" }
-            ],
-            relationships: [
-              { fromColumn: "customer_id", toTable: "customers", toColumn: "customer_id" }
-            ]
-          }
-        ]
-      },
-      apiDesign: {
-        endpoints: [
-          {
-            path: "/api/customers",
-            method: "GET",
-            description: "Get all customers with pagination",
-            parameters: ["page", "limit", "search"],
-            response: "List of customer objects"
-          },
-          {
-            path: "/api/customers/{id}",
-            method: "GET",
-            description: "Get customer by ID",
-            parameters: ["id"],
-            response: "Customer object"
-          },
-          {
-            path: "/api/customers",
-            method: "POST",
-            description: "Create new customer",
-            body: "Customer data object",
-            response: "Created customer object"
-          },
-          {
-            path: "/api/customers/{id}",
-            method: "PUT",
-            description: "Update customer",
-            parameters: ["id"],
-            body: "Updated customer data",
-            response: "Updated customer object"
-          },
-          {
-            path: "/api/customers/{id}",
-            method: "DELETE",
-            description: "Delete customer",
-            parameters: ["id"],
-            response: "Success confirmation"
-          },
-          {
-            path: "/api/customers/{id}/reports",
-            method: "GET",
-            description: "Get customer reports",
-            parameters: ["id", "date_from", "date_to"],
-            response: "List of report objects"
-          }
-        ],
-        models: [
-          {
-            name: "Customer",
-            fields: [
-              { name: "id", type: "integer", required: true },
-              { name: "customerId", type: "string", required: true },
-              { name: "customerName", type: "string", required: true },
-              { name: "customerAddress", type: "string", required: false },
-              { name: "createdAt", type: "datetime", required: true },
-              { name: "updatedAt", type: "datetime", required: true }
-            ]
-          },
-          {
-            name: "CustomerReport",
-            fields: [
-              { name: "id", type: "integer", required: true },
-              { name: "customerId", type: "string", required: true },
-              { name: "reportDate", type: "date", required: true },
-              { name: "reportData", type: "object", required: true }
-            ]
-          }
-        ],
-        security: {
-          authentication: "JWT",
-          authorization: "RBAC",
-          rateLimiting: "100 requests per minute",
-          inputValidation: "Joi schema validation",
-          sqlInjectionPrevention: "Parameterized queries"
-        },
-        architecture: {
-          pattern: "Microservices",
-          framework: "Spring Boot",
-          database: "MySQL",
-          caching: "Redis",
-          messaging: "Apache Kafka"
-        }
-      },
-      dashboardData: {
-        complexity: "medium",
-        confidence: 0.85,
-        linesOfCode: 1250,
-        dependencies: 5,
-        validationScore: 88
-      },
-      documentation: {
-        summary: "This legacy COBOL program processes customer records in batch mode, reading from flat files and generating reports. The modernization approach converts it to a REST API-based microservice architecture with proper database normalization.",
-        technicalDetails: "The original system used fixed-length record formats with COBOL data structures. The modernized version uses relational database tables with proper normalization, RESTful APIs for data access, and microservices for scalability.",
-        migrationPlan: "Phase 1: Database setup and data migration (2-3 weeks). Phase 2: API development and testing (4-6 weeks). Phase 3: Integration and deployment (2-3 weeks).",
-        risks: [
-          "Data loss during migration",
-          "Performance impact during transition",
-          "Learning curve for development team",
-          "Integration challenges with existing systems"
-        ]
-      },
-      confidence: 0.85
-    };
+    setModernizationResults(sampleModernizationData);
+    setAppMode('dashboard');
+  };
 
-    setModernizationResults(sampleResults);
+  const startModernization = () => {
+    setAppMode('dashboard');
   };
 
   return (
     <>
       <style jsx>{`
-        .modernization-container {
+        .modernization-app-container {
           min-height: 100vh;
           background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #374151 50%, #1e293b 75%, #0f172a 100%);
-          position: relative;
+          color: white;
+          font-family: 'Inter', sans-serif;
           overflow-x: hidden;
-        }
-
-        .modernization-container-full {
-          position: fixed;
-          inset: 0;
-          background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #374151 50%, #1e293b 75%, #0f172a 100%);
-          overflow: hidden;
-          z-index: 9999;
         }
 
         .bg-overlay {
@@ -204,39 +72,44 @@ const ModernizationApp = () => {
           right: 0;
           bottom: 0;
           background:
-            radial-gradient(ellipse at top left, rgba(59, 130, 246, 0.1), transparent 50%),
-            radial-gradient(ellipse at bottom right, rgba(139, 92, 246, 0.08), transparent 50%),
-            radial-gradient(ellipse at center, rgba(59, 130, 246, 0.05), transparent 70%);
+            radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
+            radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
           pointer-events: none;
-          z-index: 1;
+          z-index: 0;
         }
 
         .content-wrapper {
           position: relative;
           z-index: 10;
-          width: 100%;
-          max-width: 1400px;
+          max-width: 1280px;
           margin: 0 auto;
-          padding: 0 1rem;
+          padding: 0 1.5rem;
         }
 
         .glass-card {
-          background: rgba(15, 23, 42, 0.6);
-          backdrop-filter: blur(16px);
-          border: 1px solid rgba(59, 130, 246, 0.2);
+          background: rgba(30, 41, 59, 0.7);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 1.5rem;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         }
 
         .glass-card-light {
-          background: rgba(255, 255, 255, 0.03);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(59, 130, 246, 0.15);
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 1rem;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card-light:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+          border-color: rgba(59, 130, 246, 0.3);
         }
 
         .gradient-text {
-          background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+          background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -244,450 +117,192 @@ const ModernizationApp = () => {
 
         .btn-primary {
           background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-          color: #fff;
+          color: white;
           border: none;
-          font-weight: 700;
+          padding: 1rem 2rem;
+          border-radius: 0.75rem;
+          font-weight: 600;
+          font-size: 1.1rem;
+          cursor: pointer;
           transition: all 0.3s ease;
-          box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+          box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
         }
 
         .btn-primary:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
-        }
-
-        .btn-primary:disabled {
-          background: #64748b;
-          color: #94a3b8;
-          cursor: not-allowed;
-          transform: none;
-          box-shadow: none;
+          box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+          filter: brightness(1.1);
         }
 
         .btn-secondary {
-          background: transparent;
-          color: #e2e8f0;
-          border: 2px solid rgba(59, 130, 246, 0.4);
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          padding: 1rem 2rem;
+          border-radius: 0.75rem;
           font-weight: 600;
+          font-size: 1.1rem;
+          cursor: pointer;
           transition: all 0.3s ease;
+          backdrop-filter: blur(5px);
         }
 
         .btn-secondary:hover {
-          background: rgba(59, 130, 246, 0.1);
-          border-color: rgba(59, 130, 246, 0.6);
-          color: #fff;
+          background: rgba(255, 255, 255, 0.15);
+          border-color: rgba(255, 255, 255, 0.3);
+          transform: translateY(-2px);
         }
 
-        .floating {
-          animation: floating 3s ease-in-out infinite;
-        }
-
-        @keyframes floating {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-
-        .rotate {
-          animation: rotate 2s linear infinite;
-        }
-
-        @keyframes rotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-
-        .pulse {
-          animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-
-        .section-spacing {
-          margin-bottom: 4rem;
-        }
-
-        .center-container {
+        .hero-section {
+          min-height: 90vh;
           display: flex;
           flex-direction: column;
-          align-items: center;
           justify-content: center;
+          align-items: center;
           text-align: center;
-          width: 100%;
+          padding: 4rem 0;
         }
 
-        @media (max-width: 768px) {
-          .content-wrapper {
-            padding: 0 0.5rem;
-          }
+        .floating-icon {
+          animation: float 6s ease-in-out infinite;
+        }
 
-          .section-spacing {
-            margin-bottom: 2rem;
-          }
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-20px); }
         }
       `}</style>
 
-      <div className="modernization-container">
+      <div className="modernization-app-container">
         <div className="bg-overlay"></div>
 
-        <div className="content-wrapper">
-          {/* Header Section */}
-          <motion.header
-            className="center-container section-spacing"
-            initial="initial"
-            animate="animate"
-            variants={fadeInUp}
-            transition={{ duration: 0.6 }}
-            style={{ paddingTop: '3rem', paddingBottom: '2rem' }}
-          >
+        <AnimatePresence mode="wait">
+          {appMode === 'landing' ? (
             <motion.div
-              className="glass-card-light"
-              style={{
-                padding: '2rem',
-                width: '100%',
-                maxWidth: '800px'
-              }}
-              variants={scaleIn}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              key="landing"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, y: -50 }}
+              transition={{ duration: 0.5 }}
+              className="content-wrapper"
             >
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '1rem',
-                marginBottom: '1rem'
-              }}>
+              {/* Hero Section */}
+              <section className="hero-section">
                 <motion.div
-                  className="floating"
-                  style={{
-                    width: '60px',
-                    height: '60px',
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                    borderRadius: '1rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '2rem'
-                  }}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="mb-8 floating-icon"
                 >
-                  🚀
+                  <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-5xl shadow-2xl">
+                    🚀
+                  </div>
                 </motion.div>
-                <div style={{ textAlign: 'left' }}>
-                  <motion.h1
-                    className="gradient-text"
-                    variants={slideIn}
-                    transition={{ duration: 0.8, delay: 0.3 }}
-                    style={{
-                      fontSize: 'clamp(1.5rem, 5vw, 2.5rem)',
-                      fontWeight: 900,
-                      marginBottom: '0.25rem',
-                      lineHeight: 1.2
-                    }}
-                  >
-                    AI Modernization Assistant
-                  </motion.h1>
-                  <motion.p
-                    style={{
-                      fontSize: 'clamp(0.875rem, 2vw, 1rem)',
-                      color: '#94a3b8',
-                      margin: 0
-                    }}
-                    variants={fadeInUp}
-                    transition={{ duration: 0.6, delay: 0.4 }}
-                  >
-                    Transform legacy COBOL systems into modern microservices
-                  </motion.p>
-                </div>
-              </div>
 
-              <motion.div
-                style={{
-                  width: '100px',
-                  height: '4px',
-                  background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)',
-                  borderRadius: '2px',
-                  margin: '1.5rem auto'
-                }}
-                initial={{ width: 0 }}
-                animate={{ width: 100 }}
-                transition={{ delay: 0.6, duration: 1 }}
-              />
-
-              <div style={{
-                display: 'flex',
-                gap: '1rem',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}>
-                <motion.button
-                  onClick={loadSampleData}
-                  className="btn-primary"
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    borderRadius: '0.75rem',
-                    fontSize: '1rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <motion.h1
                   variants={fadeInUp}
                   initial="initial"
                   animate="animate"
-                  transition={{ delay: 0.8 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight"
                 >
-                  <span className="pulse">✨</span>
-                  Load Sample Data
-                </motion.button>
+                  <span className="gradient-text">AI Modernization</span>
+                  <br />
+                  <span className="text-white">Assistant</span>
+                </motion.h1>
 
-                {currentFile && (
-                  <motion.div
-                    style={{
-                      padding: '0.75rem 1rem',
-                      background: 'rgba(34, 197, 94, 0.1)',
-                      border: '1px solid rgba(34, 197, 94, 0.3)',
-                      borderRadius: '0.75rem',
-                      color: '#4ade80',
-                      fontSize: '0.875rem',
-                      fontWeight: 600
-                    }}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                  >
-                    {Array.isArray(currentFile)
-                      ? `📁 ${currentFile.length} files: ${currentFile.map(f => f.name).join(', ')}`
-                      : `📄 Current: ${currentFile.name}`}
-                  </motion.div>
-                )}
-              </div>
-            </motion.div>
-          </motion.header>
-
-          {/* Feature Highlights */}
-          <motion.section
-            className="section-spacing"
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <div className="glass-card" style={{ padding: '3rem' }}>
-              <div className="center-container" style={{ marginBottom: '2rem' }}>
-                <motion.h2
-                  className="gradient-text"
-                  variants={scaleIn}
-                  style={{
-                    fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
-                    fontWeight: 800,
-                    marginBottom: '1rem'
-                  }}
+                <motion.p
+                  variants={fadeInUp}
+                  initial="initial"
+                  animate="animate"
+                  transition={{ delay: 0.4 }}
+                  className="text-xl md:text-2xl text-gray-300 max-w-3xl mb-12 leading-relaxed"
                 >
-                  🎯 Key Features
-                </motion.h2>
-                <p style={{ color: '#94a3b8', fontSize: '1.1rem', maxWidth: '600px' }}>
-                  Comprehensive modernization platform with AI-powered analysis and transformation
-                </p>
-              </div>
+                  Transform legacy COBOL systems into modern, scalable microservices architecture using advanced AI agents.
+                </motion.p>
 
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                gap: '1.5rem'
-              }}>
-                {[
-                  {
-                    icon: '🗄️',
-                    title: 'Database Schema',
-                    description: 'Auto-generated modern database structures',
-                    color: '#3b82f6',
-                    delay: 0
-                  },
-                  {
-                    icon: '🔗',
-                    title: 'REST API Design',
-                    description: 'Complete API architecture with endpoints',
-                    color: '#8b5cf6',
-                    delay: 0.1
-                  },
-                  {
-                    icon: '🏗️',
-                    title: 'Microservices',
-                    description: 'Scalable microservices architecture',
-                    color: '#06b6d4',
-                    delay: 0.2
-                  },
-                  {
-                    icon: '📊',
-                    title: 'Analytics',
-                    description: 'Detailed insights and metrics',
-                    color: '#10b981',
-                    delay: 0.3
-                  }
-                ].map((feature, index) => (
-                  <motion.div
-                    key={index}
-                    className="glass-card-light"
-                    style={{
-                      padding: '2rem',
-                      border: `2px solid ${feature.color}40`,
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 + feature.delay }}
-                    whileHover={{
-                      scale: 1.03,
-                      y: -5,
-                      boxShadow: `0 10px 30px ${feature.color}40`
-                    }}
-                  >
-                    <motion.div
-                      style={{
-                        position: 'absolute',
-                        top: '-50%',
-                        right: '-50%',
-                        width: '100px',
-                        height: '100px',
-                        background: `radial-gradient(circle, ${feature.color}20, transparent)`,
-                        borderRadius: '50%'
-                      }}
-                      animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.3, 0.6, 0.3]
-                      }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                    />
+                <motion.div
+                  variants={fadeInUp}
+                  initial="initial"
+                  animate="animate"
+                  transition={{ delay: 0.6 }}
+                  className="flex flex-col sm:flex-row gap-6"
+                >
+                  <button onClick={startModernization} className="btn-primary">
+                    <span>Start Modernizing</span>
+                    <span>→</span>
+                  </button>
+                  <button onClick={loadSampleData} className="btn-secondary">
+                    <span>✨ Load Sample Data</span>
+                  </button>
+                </motion.div>
+              </section>
 
-                    <div className="center-container">
-                      <motion.div
-                        style={{
-                          fontSize: '3rem',
-                          marginBottom: '1rem',
-                          filter: `drop-shadow(0 0 10px ${feature.color}80)`
-                        }}
-                        whileHover={{
-                          rotate: [0, -10, 10, 0],
-                          scale: 1.2
-                        }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        {feature.icon}
-                      </motion.div>
-                      <h3 style={{
-                        color: feature.color,
-                        fontSize: '1.25rem',
-                        fontWeight: 700,
-                        marginBottom: '0.5rem'
-                      }}>
-                        {feature.title}
-                      </h3>
-                      <p style={{
-                        color: '#94a3b8',
-                        fontSize: '0.9rem',
-                        margin: 0,
-                        lineHeight: 1.5
-                      }}>
-                        {feature.description}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </motion.section>
-
-          {/* Processing Status */}
-          <AnimatePresence>
-            {isProcessing && (
+              {/* Features Grid */}
               <motion.section
-                className="section-spacing"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                transition={{ delay: 0.8, duration: 0.8 }}
+                className="pb-24"
               >
-                <div className="glass-card" style={{ padding: '3rem' }}>
-                  <div className="center-container">
+                <h2 className="text-3xl font-bold text-center mb-12">Powerful Capabilities</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {featureHighlights.map((feature, index) => (
                     <motion.div
-                      className="rotate"
-                      style={{
-                        width: '60px',
-                        height: '60px',
-                        border: '4px solid rgba(59, 130, 246, 0.3)',
-                        borderTop: '4px solid #3b82f6',
-                        borderRadius: '50%',
-                        marginBottom: '1.5rem'
-                      }}
-                    />
-                    <h3 style={{
-                      fontSize: '1.5rem',
-                      fontWeight: 700,
-                      color: '#3b82f6',
-                      marginBottom: '0.5rem'
-                    }}>
-                      🔄 Processing Your Files
-                    </h3>
-                    <p style={{ color: '#94a3b8', fontSize: '1rem' }}>
-                      AI is analyzing and transforming your legacy systems...
-                    </p>
-                  </div>
+                      key={index}
+                      className="glass-card-light p-8"
+                      whileHover={{ y: -10 }}
+                    >
+                      <div className="text-4xl mb-4">{feature.icon}</div>
+                      <h3 className="text-xl font-bold mb-2" style={{ color: feature.color }}>{feature.title}</h3>
+                      <p className="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
+                    </motion.div>
+                  ))}
                 </div>
               </motion.section>
-            )}
-          </AnimatePresence>
 
-          {/* Main Dashboard - Full Page */}
-          <motion.section
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 1000
-            }}
-          >
-            <ModernizationDashboard
-              modernizationResults={modernizationResults}
-              onFileUpload={handleFileUpload}
-              onProcessFile={handleProcessResults}
-              isProcessing={isProcessing}
-              processingStatus={processingStatus}
-            />
-          </motion.section>
+              {/* Footer */}
+              <footer className="text-center pb-8 text-gray-500 text-sm">
+                <p>© 2025 AI Modernization Assistant. Powered by Advanced LLMs.</p>
+              </footer>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="dashboard"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.5 }}
+              className="fixed inset-0 z-50"
+            >
+              <ModernizationDashboard
+                modernizationResults={modernizationResults}
+                onFileUpload={handleFileUpload}
+                onProcessFile={handleProcessResults}
+                isProcessing={isProcessing}
+                processingStatus={processingStatus}
+              />
 
-          {/* Footer Info */}
-          <motion.section
-            style={{ paddingBottom: '3rem' }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 1 }}
-          >
-            <div className="glass-card-light" style={{ padding: '2rem' }}>
-              <div className="center-container">
-                <p style={{
-                  color: '#64748b',
-                  fontSize: '0.875rem',
-                  fontStyle: 'italic',
-                  margin: 0
-                }}>
-                  🚀 Powered by AI • Transforming Legacy Systems into Modern Architecture
-                </p>
-              </div>
-            </div>
-          </motion.section>
-        </div>
+              {/* Back to Home Button (Optional, floating) */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+                onClick={() => setAppMode('landing')}
+                className="fixed bottom-4 left-4 z-[1001] bg-white/10 hover:bg-white/20 backdrop-blur text-white px-4 py-2 rounded-full text-sm font-medium transition-colors border border-white/10"
+              >
+                ← Back to Home
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </>
   );
 };
 
 export default ModernizationApp;
+
